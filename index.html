@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>二等業餘無線電人員 - 題庫學習系統</title>
+    <title>業餘無線電人員資格測試題庫 - 學習系統</title>
 
     <style>
         :root {
@@ -102,9 +102,9 @@
         .file-select-btn { padding: 12px 24px; background: #0275d8; color: white; border-radius: 6px; cursor: pointer; display: inline-block; font-size: 18px; font-weight: bold; }
         .file-select-btn:hover { background: #025aa5; }
         
-        /* 選擇載入方式按鈕排版 */
-        .load-options { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
-        .btn-auto-load { background: #28a745; color: white; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; border: none; display: inline-flex; align-items: center; gap: 6px; }
+        /* 修改：改為上下垂直排列並置中 */
+        .load-options { display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; margin-top: 15px; width: 100%; }
+        .btn-auto-load { background: #28a745; color: white; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; max-width: 420px; }
         .btn-auto-load:hover { background: #218838; }
 
         .disclaimer-box { font-size: 12px; color: var(--disclaimer-color); background: var(--disclaimer-bg); padding: 10px; border-radius: 4px; border: 1px dashed var(--toolbar-border); margin-top: 15px; text-align: justify; }
@@ -112,7 +112,6 @@
         .footer-copyright { text-align: center; padding: 15px 0 5px 0; margin-top: 20px; font-size: 14px; color: var(--disclaimer-color); border-top: 1px solid var(--toolbar-border); line-height: 1.6; }
         .footer-copyright strong { color: #0275d8; font-weight: bold; }
 
-        /* 自訂 1 秒自動消失提示框樣式 */
         #toast-notification {
             position: fixed;
             top: 20px;
@@ -132,14 +131,12 @@
 </head>
 <body>
 
-<!-- 自訂提示框 -->
 <div id="toast-notification">提示訊息</div>
 
 <div class="container">
     <div id="start-screen">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>二等業餘無線電人員 題庫學習系統</h2>
-            <!-- 日夜間模式切換按鈕 -->
+            <h2>業餘無線電人員資格測試題庫 學習系統</h2>
             <button class="btn" onclick="toggleTheme()" id="theme-toggle-btn" style="background: var(--toolbar-bg); border: 1px solid var(--toolbar-border); color: var(--text-color); padding: 6px 12px; font-size: 14px; font-weight: bold;">
                 🌙 夜間模式
             </button>
@@ -148,21 +145,19 @@
             <p id="status-text" style="font-size: 16px; margin-bottom: 10px;">請選擇題庫載入方式：</p>
             
             <div class="load-options">
-                <!-- 自動載入按鈕 -->
                 <button class="btn-auto-load" onclick="loadDefaultTxt()">
-                    ⚡ 自動載入線上二等業餘無線電題庫
+                    ⚡ 自動載入線上二等業餘無線電題庫(115年8月版)
                 </button>
 
-                <!-- 手動載入按鈕 -->
-                <label class="file-select-btn" id="file-label" style="margin: 0; font-size: 16px; padding: 12px 24px;">
+                <label class="file-select-btn" id="file-label" style="margin: 0; font-size: 16px; padding: 12px 24px; width: 100%; max-width: 420px; box-sizing: border-box; text-align: center;">
                     📁 手動上傳學習進度(*.txt)
                     <input type="file" id="file-input" accept=".txt" style="display:none;" onchange="handleFileSelect(event)">
                 </label>
             </div>
             
             <div style="margin-top: 15px;">
-                <a href="二等業餘無線電人員資格測試題庫.txt" download style="color: #0275d8; font-size: 14px; text-decoration: none; font-weight: bold;">
-                    📥 點此下載原始二等業餘無線電題庫 txt 檔案
+                <a href="二等業餘無線電人員資格測試題庫(115年8月版).txt" download style="color: #0275d8; font-size: 14px; text-decoration: none; font-weight: bold;">
+                    📥 點此下載原始二等題庫(115年8月版)txt
                 </a>
             </div>
         </div>
@@ -190,13 +185,22 @@
         <!-- 科目切換頁籤 -->
         <div class="category-tabs" id="category-tabs"></div>
 
-        <!-- 功能工具列 -->
+        <!-- 功能工具列（僅顯示待復習題開關） -->
         <div class="toolbar">
-            <label class="toggle-box">
-                <input type="checkbox" id="auto-show-toggle" onchange="toggleAutoShow()">
-                <span class="slider"></span>
-                <span>直接顯示正確答案 (背誦模式)</span>
-            </label>
+            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                <label class="toggle-box">
+                    <input type="checkbox" id="auto-show-toggle" onchange="toggleAutoShow()">
+                    <span class="slider"></span>
+                    <span>直接顯示正確答案 (背誦模式)</span>
+                </label>
+                
+                <label class="toggle-box">
+                    <input type="checkbox" id="only-review-toggle" onchange="toggleOnlyReviewMode()">
+                    <span class="slider"></span>
+                    <span>僅顯示"待復習"題</span>
+                </label>
+            </div>
+
             <div class="jump-box">
                 <span>跳至第</span>
                 <input type="number" id="jump-input" min="1" onkeydown="handleJumpKey(event)">
@@ -232,7 +236,7 @@
 
     <!-- BM5DUK / BM7INH 版權宣告列 -->
     <div class="footer-copyright">
-        二等業餘無線電人員題庫學習系統 &copy; <br>
+        業餘無線電人員題庫學習系統 &copy; <br>
         2026 Original Designed & Developed by <strong>BM5DUK</strong><br>
         2026_Oct revised by <strong>BM7INH</strong>
     </div>
@@ -244,6 +248,7 @@ let currentCategory = "無線電規章與相關法規";
 let currentList = [];
 let currentIndex = 0;
 let autoShowAnswer = false; 
+let onlyReviewMode = false;
 let userRevealed = false;
 let userSelectedOpt = null;
 
@@ -258,7 +263,6 @@ const examRules = [
     { name: "已知道題庫", keyword: "=已知道題庫=" }
 ];
 
-// 初始化時檢查並套用儲存的日夜間模式
 document.addEventListener("DOMContentLoaded", () => {
     const savedTheme = localStorage.getItem("theme") || "light";
     if (savedTheme === "dark") {
@@ -296,12 +300,11 @@ function showToast(message) {
     setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => { toast.style.display = 'none'; }, 300);
-    }, 1000); // 提示框 1 秒後自動隱藏
+    }, 1000);
 }
 
-// 自動載入線上題庫功能
 function loadDefaultTxt() {
-    const txtFileName = '二等業餘無線電人員資格測試題庫.txt'; // 請確認檔名與 GitHub 上的完全一致
+    const txtFileName = '二等業餘無線電人員資格測試題庫(115年8月版).txt';
     
     fetch(txtFileName)
         .then(response => {
@@ -399,17 +402,18 @@ function updateTabs() {
 
 function switchCategory(catName) {
     currentCategory = catName;
-    currentList = categorizedQuestions[catName] || [];
-    currentIndex = 0;
+    let rawList = categorizedQuestions[catName] || [];
 
-    let btns = document.querySelectorAll('.tab-btn');
-    btns.forEach(btn => {
-        if (btn.innerText.includes(catName)) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
+    if (onlyReviewMode) {
+        currentList = rawList.filter(q => 
+            categorizedQuestions["待復習題庫"].some(item => item.question === q.question)
+        );
+    } else {
+        currentList = rawList;
+    }
+    
+    currentIndex = 0;
+    updateTabs();
 
     document.getElementById('jump-max').innerText = `/ ${currentList.length} 題`;
     document.getElementById('jump-input').max = currentList.length;
@@ -417,12 +421,22 @@ function switchCategory(catName) {
     showQuestion(0);
 }
 
+function toggleOnlyReviewMode() {
+    onlyReviewMode = document.getElementById('only-review-toggle').checked;
+    if (onlyReviewMode) {
+        showToast("已開啟：僅顯示本科目「待復習」題");
+    } else {
+        showToast("已關閉僅顯示待復習模式");
+    }
+    switchCategory(currentCategory);
+}
+
 function showQuestion(index) {
     if (currentList.length === 0) {
         document.getElementById('q-progress').innerText = `【${currentCategory}】 目前沒有題目`;
         document.getElementById('q-category').innerText = currentCategory;
         let qTextElem = document.getElementById('q-text');
-        qTextElem.innerText = "此分類目前沒有題目！";
+        qTextElem.innerText = onlyReviewMode ? "此科目目前沒有待復習的題目！" : "此分類目前沒有題目！";
         qTextElem.className = "";
         document.getElementById('q-options').innerHTML = "";
         document.getElementById('jump-input').value = 0;
@@ -488,7 +502,7 @@ function renderOptions() {
 }
 
 function selectOption(optIndex) {
-    if (userRevealed) return; // 避免重複點擊
+    if (userRevealed) return;
     userRevealed = true;
     userSelectedOpt = optIndex;
     renderOptions();
@@ -497,7 +511,6 @@ function selectOption(optIndex) {
     if (!q) return;
 
     if (optIndex === q.answer) {
-        // 答對 -> 自動加入已知道題庫
         categorizedQuestions["待復習題庫"] = categorizedQuestions["待復習題庫"].filter(item => item.question !== q.question);
         let alreadyExists = categorizedQuestions["已知道題庫"].some(item => item.question === q.question);
         if (!alreadyExists) {
@@ -509,9 +522,22 @@ function selectOption(optIndex) {
         updateTabs();
         showToast("答對！已加入「已知道題庫」");
 
-        // 停留 1 秒後自動跳到下一題
+        if (onlyReviewMode) {
+            let rawList = categorizedQuestions[currentCategory] || [];
+            currentList = rawList.filter(item => 
+                categorizedQuestions["待復習題庫"].some(rev => rev.question === item.question)
+            );
+            document.getElementById('jump-max').innerText = `/ ${currentList.length} 題`;
+            document.getElementById('jump-input').max = currentList.length;
+            if (currentIndex >= currentList.length) {
+                currentIndex = Math.max(0, currentList.length - 1);
+            }
+        }
+
         setTimeout(() => {
-            if (currentIndex < currentList.length - 1) {
+            if (onlyReviewMode) {
+                showQuestion(currentIndex);
+            } else if (currentIndex < currentList.length - 1) {
                 nextQuestion();
             } else {
                 showQuestion(currentIndex);
@@ -519,7 +545,6 @@ function selectOption(optIndex) {
         }, 1000);
 
     } else {
-        // 答錯 -> 自動加入待復習題庫
         categorizedQuestions["已知道題庫"] = categorizedQuestions["已知道題庫"].filter(item => item.question !== q.question);
         let alreadyExists = categorizedQuestions["待復習題庫"].some(item => item.question === q.question);
         if (!alreadyExists) {
@@ -529,10 +554,15 @@ function selectOption(optIndex) {
             categorizedQuestions["待復習題庫"].sort((a, b) => a.globalIndex - b.globalIndex);
         }
         updateTabs();
+        if (onlyReviewMode) {
+            let rawList = categorizedQuestions[currentCategory] || [];
+            currentList = rawList.filter(item => 
+                categorizedQuestions["待復習題庫"].some(rev => rev.question === item.question)
+            );
+        }
         showToast("答錯！已加入「待復習題庫」");
     }
 
-    // 更新題目文字狀態顏色
     let qTextElem = document.getElementById('q-text');
     let inReview = categorizedQuestions["待復習題庫"].some(item => item.question === q.question);
     let inKnown = categorizedQuestions["已知道題庫"].some(item => item.question === q.question);
@@ -550,10 +580,33 @@ function toggleAutoShow() {
     renderOptions();
 }
 
-function prevQuestion() { if (currentIndex > 0) showQuestion(currentIndex - 1); }
-function nextQuestion() { if (currentIndex < currentList.length - 1) showQuestion(currentIndex + 1); }
+function prevQuestion() { 
+    if (onlyReviewMode) {
+        let rawList = categorizedQuestions[currentCategory] || [];
+        currentList = rawList.filter(q => 
+            categorizedQuestions["待復習題庫"].some(item => item.question === q.question)
+        );
+    }
+    if (currentIndex > 0) showQuestion(currentIndex - 1); 
+}
+
+function nextQuestion() { 
+    if (onlyReviewMode) {
+        let rawList = categorizedQuestions[currentCategory] || [];
+        currentList = rawList.filter(q => 
+            categorizedQuestions["待復習題庫"].some(item => item.question === q.question)
+        );
+    }
+    if (currentIndex < currentList.length - 1) showQuestion(currentIndex + 1); 
+}
 
 function jumpToQuestion() {
+    if (onlyReviewMode) {
+        let rawList = categorizedQuestions[currentCategory] || [];
+        currentList = rawList.filter(q => 
+            categorizedQuestions["待復習題庫"].some(item => item.question === q.question)
+        );
+    }
     let val = parseInt(document.getElementById('jump-input').value);
     if (!isNaN(val) && val >= 1 && val <= currentList.length) {
         showQuestion(val - 1);
@@ -570,11 +623,6 @@ function handleJumpKey(e) {
 
 function markAsReview() {
     if (currentList.length === 0) return;
-    if (currentCategory === "待復習題庫") {
-        showToast("此題已經在待復習題庫中囉！");
-        return;
-    }
-
     let q = currentList[currentIndex];
     
     categorizedQuestions["已知道題庫"] = categorizedQuestions["已知道題庫"].filter(item => item.question !== q.question);
@@ -599,11 +647,6 @@ function markAsReview() {
 
 function markAsKnown() {
     if (currentList.length === 0) return;
-    if (currentCategory === "已知道題庫") {
-        showToast("此題已經在已知道題庫中囉！");
-        return;
-    }
-
     let q = currentList[currentIndex];
     
     categorizedQuestions["待復習題庫"] = categorizedQuestions["待復習題庫"].filter(item => item.question !== q.question);
@@ -622,8 +665,21 @@ function markAsKnown() {
     categorizedQuestions["已知道題庫"].sort((a, b) => a.globalIndex - b.globalIndex);
 
     updateTabs();
+
+    if (onlyReviewMode) {
+        let rawList = categorizedQuestions[currentCategory] || [];
+        currentList = rawList.filter(item => 
+            categorizedQuestions["待復習題庫"].some(rev => rev.question === item.question)
+        );
+        document.getElementById('jump-max').innerText = `/ ${currentList.length} 題`;
+        document.getElementById('jump-input').max = currentList.length;
+        if (currentIndex >= currentList.length) {
+            currentIndex = Math.max(0, currentList.length - 1);
+        }
+    }
+
     showQuestion(currentIndex);
-    showToast("已加入「已知道題庫」（已按原順序排列）！");
+    showToast("已移至「已知道題庫」！");
 }
 
 function updateStatusFile() {
