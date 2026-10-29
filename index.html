@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二等業餘無線電人員 - 題庫學習系統</title>
+
+    <style>
+        body { font-family: "Microsoft JhengHei", Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; display: flex; flex-direction: column; min-height: 95vh; }
+        .container { max-width: 850px; background: white; margin: 0 auto; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex: 1; width: 100%; box-sizing: border-box; position: relative; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        
+        /* 科目分頁標籤 */
+        .category-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; border-bottom: 2px solid #0275d8; padding-bottom: 8px; }
+        .tab-btn { padding: 8px 12px; border: 1px solid #0275d8; background: white; color: #0275d8; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .tab-btn:hover { background: #eef7ff; }
+        .tab-btn.active { background: #0275d8; color: white; }
+        
+        /* 工具列與開關控制 */
+        .toolbar { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #dee2e6; flex-wrap: wrap; gap: 10px; }
+        .toggle-box { display: flex; align-items: center; cursor: pointer; user-select: none; font-weight: bold; font-size: 15px; }
+        .toggle-box input { display: none; }
+        .slider { width: 44px; height: 22px; background-color: #ccc; border-radius: 22px; transition: .3s; position: relative; margin-right: 10px; display: inline-block; }
+        .slider:before { content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%; background-color: white; top: 3px; left: 3px; transition: .3s; }
+        input:checked + .slider { background-color: #28a745; }
+        input:checked + .slider:before { transform: translateX(22px); }
+        
+        .jump-box { display: flex; align-items: center; gap: 5px; font-size: 14px; }
+        .jump-box input { width: 60px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+
+        .question-box { margin: 15px 0; padding: 20px; background: #fafafa; border-radius: 6px; border: 1px solid #e9ecef; }
+        .category-tag { font-size: 13px; background: #17a2b8; color: white; padding: 3px 8px; border-radius: 3px; display: inline-block; margin-bottom: 10px; }
+        
+        /* 題目文字狀態顏色樣式 */
+        #q-text { margin-top: 5px; padding: 8px 12px; border-radius: 4px; transition: all 0.2s; }
+        .status-review { background-color: #dc3545 !important; color: white !important; }
+        .status-known { background-color: #28a745 !important; color: white !important; }
+
+        /* 選項與答案顏色 */
+        .options { margin-top: 15px; }
+        .option-btn { display: block; width: 100%; text-align: left; padding: 12px 15px; margin-bottom: 8px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer; font-size: 16px; position: relative; transition: all 0.2s; }
+        .option-btn:hover { background: #f1f3f5; }
+        
+        /* 正確與錯誤狀態標示 */
+        .option-btn.correct-ans { background: #d4edda !important; border-color: #28a745 !important; color: #155724; font-weight: bold; }
+        .option-btn.correct-ans::after { content: "✔ 正確答案"; position: absolute; right: 15px; color: #28a745; font-weight: bold; font-size: 14px; }
+        .option-btn.wrong-ans { background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24; }
+        .option-btn.wrong-ans::after { content: "✖ 選擇此項"; position: absolute; right: 15px; color: #dc3545; font-size: 14px; }
+
+        .nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        .btn { padding: 10px 0; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; text-align: center; }
+        
+        /* 四個按鈕寬度一致設計 */
+        .action-buttons-group { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 520px; }
+        .action-btn { flex: 1; min-width: 110px; padding: 10px 5px; font-size: 15px; border-radius: 4px; text-align: center; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold; }
+
+        .btn-primary { background: #0275d8; color: white; padding: 10px 20px; }
+        .btn-ai { background: #a8eb12; color: #222; border-color: #95d40e; }
+        .btn-ai:hover { background: #95d40e; }
+        .btn-known { background: #28a745; color: white; border-color: #1e7e34; }
+        .btn-known:hover { background: #218838; }
+        .btn-review { background: #dc3545; color: white; border-color: #bd2130; }
+        .btn-review:hover { background: #c82333; }
+        .btn-update { background: #28a745; color: white; border-color: #1e7e34; }
+        .btn-update:hover { background: #218838; }
+        
+        .status-box { padding: 25px; background: #e9ecef; border-radius: 6px; margin-bottom: 15px; text-align: center; }
+        .file-select-btn { padding: 12px 24px; background: #0275d8; color: white; border-radius: 6px; cursor: pointer; display: inline-block; font-size: 18px; font-weight: bold; }
+        .file-select-btn:hover { background: #025aa5; }
+        
+        .disclaimer-box { font-size: 12px; color: #777; background: #f8f9fa; padding: 10px; border-radius: 4px; border: 1px dashed #ccc; margin-top: 15px; text-align: justify; }
+
+        .footer-copyright { text-align: center; padding: 15px 0 5px 0; margin-top: 20px; font-size: 14px; color: #666; border-top: 1px solid #e9ecef; line-height: 1.6; }
+        .footer-copyright strong { color: #0275d8; font-weight: bold; }
+
+        /* 自訂 1 秒自動消失提示框樣式 */
+        #toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 15px;
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 自訂提示框 -->
+<div id="toast-notification">提示訊息</div>
+
+<div class="container">
+    <div id="start-screen">
+        <h2>二等業餘無線電人員 題庫學習系統</h2>
+        <div class="status-box" id="load-status">
+            <p id="status-text" style="font-size: 16px; margin-bottom: 15px;">請點擊下方按鈕選取題庫檔案(*.txt)：</p>
+            <label class="file-select-btn" id="file-label">
+                📁 選擇 題庫檔案(*.txt)
+                <input type="file" id="file-input" accept=".txt" style="display:none;" onchange="handleFileSelect(event)">
+            </label>
+        </div>
+
+        <p>系統特色：</p>
+        <ul>
+            <li><strong>完整 606 題：</strong> 收錄 6 大科目全部題庫，可依科目分類循序背誦。</li>
+            <li><strong>智慧答題導航：</strong> 答對自動移至「已知道題庫」並停留 1 秒後自動跳下一題；答錯自動移至「待復習題庫」。</li>
+            <li><strong>自動排序管理：</strong> 複製到「待復習」或「已知道」題庫時，自動依原題庫順序排列。</li>
+            <li><strong>快捷操作：</strong> 支援鍵盤數字鍵 <kbd>1</kbd> ~ <kbd>4</kbd>、左右方向鍵及 <kbd>Space</kbd> 空白鍵。</li>
+        </ul>
+
+        <div class="disclaimer-box">
+            <strong>【免責聲明】</strong> 本系統由 BM5DUK 於 2026 年免費開發提供，爾後再經 BM7INH 更新，僅供個人學習與考前背誦複習使用。開發者對於系統運作之正確性、穩定性或題庫內容之即時性不提供任何明示或暗示之擔保，亦不對因使用本系統所生之任何損害或考試結果承擔法律責任。
+        </div>
+    </div>
+
+    <div id="study-screen" style="display:none;">
+        <!-- 科目切換頁籤 -->
+        <div class="category-tabs" id="category-tabs"></div>
+
+        <!-- 功能工具列 -->
+        <div class="toolbar">
+            <label class="toggle-box">
+                <input type="checkbox" id="auto-show-toggle" onchange="toggleAutoShow()">
+                <span class="slider"></span>
+                <span>直接顯示正確答案 (背誦模式)</span>
+            </label>
+            <div class="jump-box">
+                <span>跳至第</span>
+                <input type="number" id="jump-input" min="1" onkeydown="handleJumpKey(event)">
+                <span id="jump-max">/ 0 題</span>
+                <button class="btn btn-primary" style="padding:4px 10px; font-size:13px;" onclick="jumpToQuestion()">Go</button>
+            </div>
+        </div>
+
+        <div class="header" style="border-bottom:none; padding-bottom:0; justify-content: flex-start;">
+            <span id="q-progress" style="font-weight:bold; color:#0275d8;">第 1 / 214 題</span>
+        </div>
+
+        <div class="question-box">
+            <span class="category-tag" id="q-category">科目</span>
+            <h3 id="q-text">題目文字</h3>
+            <div class="options" id="q-options"></div>
+        </div>
+
+        <!-- 下方按鈕區 -->
+        <div class="nav-btns">
+            <button class="btn btn-primary" onclick="prevQuestion()" id="prev-btn">← 上一題</button>
+            
+            <div class="action-buttons-group">
+                <button class="action-btn btn-update" onclick="updateTestFile()">🔄 更新題庫(txt)</button>
+                <button class="action-btn btn-review" onclick="markAsReview()">📌 待復習</button>
+                <button class="action-btn btn-known" onclick="markAsKnown()">✔ 已知道</button>
+                <button class="action-btn btn-ai" onclick="openGoogleAI()">✨ Google AI</button>
+            </div>
+
+            <button class="btn btn-primary" onclick="nextQuestion()" id="next-btn">下一題 →</button>
+        </div>
+    </div>
+
+    <!-- BM5DUK / BM7INH 版權宣告列 -->
+    <div class="footer-copyright">
+        二等業餘無線電人員題庫背誦學習系統 &copy; <br>
+        2026 Original Designed & Developed by <strong>BM5DUK</strong><br>
+        2026_Oct revised by <strong>BM7INH</strong>
+    </div>
+</div>
+
+<script>
+let categorizedQuestions = {};
+let currentCategory = "無線電規章與相關法規";
+let currentList = [];
+let currentIndex = 0;
+let autoShowAnswer = false; 
+let userRevealed = false;
+let userSelectedOpt = null;
+
+const examRules = [
+    { name: "無線電規章與相關法規", keyword: "=無線電規章與相關法規題庫=" },
+    { name: "無線電通訊方法", keyword: "=無線電通訊方法題庫=" },
+    { name: "無線電系統原理", keyword: "=無線電系統原理題庫=" },
+    { name: "無線電相關安全防護", keyword: "=無線電相關安全防護題庫=" },
+    { name: "電磁相容性技術", keyword: "=電磁相容性技術題庫=" },
+    { name: "射頻干擾的預防與排除", keyword: "=射頻干擾的預防與排除題庫=" },
+    { name: "待復習題庫", keyword: "=待復習題庫=" },
+    { name: "已知道題庫", keyword: "=已知道題庫=" }
+];
+
+function showToast(message) {
+    const toast = document.getElementById('toast-notification');
+    toast.innerText = message;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.opacity = '1'; }, 10);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+    }, 1000); // 提示框 1 秒後自動隱藏
+}
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) { parseTextData(e.target.result); };
+    reader.readAsText(file, 'utf-8');
+}
+
+function parseTextData(rawText) {
+    categorizedQuestions = {};
+    examRules.forEach(r => categorizedQuestions[r.name] = []);
+
+    let markers = [];
+    examRules.forEach(rule => {
+        let pos = rawText.indexOf(rule.keyword);
+        if (pos !== -1) {
+            markers.push({ name: rule.name, pos: pos, kwLen: rule.keyword.length });
+        }
+    });
+
+    markers.sort((a, b) => a.pos - b.pos);
+
+    let globalIndex = 0;
+
+    for (let i = 0; i < markers.length; i++) {
+        let currentCat = markers[i].name;
+        let startPos = markers[i].pos + markers[i].kwLen;
+        let endPos = (i + 1 < markers.length) ? markers[i + 1].pos : rawText.length;
+        
+        let textPart = rawText.substring(startPos, endPos).trim();
+        if(!textPart) continue;
+
+        const regex = /[\(\（]\s*([1-4])\s*[\)\）]\s*(\d+)[\.\。]?\s*([\s\S]*?)[\(\（]\s*1\s*[\)\）]\s*([\s\S]*?)[\(\（]\s*2\s*[\)\）]\s*([\s\S]*?)[\(\（]\s*3\s*[\)\）]\s*([\s\S]*?)[\(\（]\s*4\s*[\)\）]\s*([\s\S]*?)(?=[\(\（]\s*[1-4]\s*[\)\）]\s*\d+|$)/g;
+        
+        let match;
+        while ((match = regex.exec(textPart)) !== null) {
+            categorizedQuestions[currentCat].push({
+                globalIndex: globalIndex++,
+                category: currentCat,
+                question: match[3].replace(/\s+/g, ' ').trim(),
+                options: [
+                    match[4].replace(/\s+/g, ' ').trim(),
+                    match[5].replace(/\s+/g, ' ').trim(),
+                    match[6].replace(/\s+/g, ' ').trim(),
+                    match[7].replace(/\s+/g, ' ').trim()
+                ],
+                answer: parseInt(match[1]) - 1
+            });
+        }
+    }
+
+    let totalFound = Object.values(categorizedQuestions).reduce((acc, cur) => acc + cur.length, 0);
+    
+    if (totalFound > 0) {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('study-screen').style.display = 'block';
+        initStudySystem();
+    } else {
+        alert("讀取檔案失敗，未找到合適的題庫內容，請確認選擇的是 test.txt。");
+    }
+}
+
+function initStudySystem() {
+    updateTabs();
+    switchCategory(currentCategory);
+}
+
+function updateTabs() {
+    let tabsHtml = '';
+    examRules.forEach(rule => {
+        let count = categorizedQuestions[rule.name] ? categorizedQuestions[rule.name].length : 0;
+        let activeClass = rule.name === currentCategory ? 'active' : '';
+        tabsHtml += `<button class="tab-btn ${activeClass}" onclick="switchCategory('${rule.name}')">${rule.name} (${count}題)</button>`;
+    });
+    document.getElementById('category-tabs').innerHTML = tabsHtml;
+}
+
+function switchCategory(catName) {
+    currentCategory = catName;
+    currentList = categorizedQuestions[catName] || [];
+    currentIndex = 0;
+
+    let btns = document.querySelectorAll('.tab-btn');
+    btns.forEach(btn => {
+        if (btn.innerText.includes(catName)) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    document.getElementById('jump-max').innerText = `/ ${currentList.length} 題`;
+    document.getElementById('jump-input').max = currentList.length;
+
+    showQuestion(0);
+}
+
+function showQuestion(index) {
+    if (currentList.length === 0) {
+        document.getElementById('q-progress').innerText = `【${currentCategory}】 目前沒有題目`;
+        document.getElementById('q-category').innerText = currentCategory;
+        let qTextElem = document.getElementById('q-text');
+        qTextElem.innerText = "此分類目前沒有題目！";
+        qTextElem.className = "";
+        document.getElementById('q-options').innerHTML = "";
+        document.getElementById('jump-input').value = 0;
+        document.getElementById('jump-max').innerText = `/ 0 題`;
+        document.getElementById('prev-btn').style.visibility = 'hidden';
+        document.getElementById('next-btn').style.visibility = 'hidden';
+        return;
+    }
+    
+    if (index >= currentList.length) index = currentList.length - 1;
+    currentIndex = index;
+    userRevealed = false;
+    userSelectedOpt = null;
+
+    let q = currentList[index];
+
+    document.getElementById('q-progress').innerText = `【${currentCategory}】 第 ${index + 1} / ${currentList.length} 題`;
+    document.getElementById('q-category').innerText = q.category;
+    
+    let qTextElem = document.getElementById('q-text');
+    qTextElem.innerText = `${index + 1}. ${q.question}`;
+    
+    let inReview = categorizedQuestions["待復習題庫"].some(item => item.question === q.question);
+    let inKnown = categorizedQuestions["已知道題庫"].some(item => item.question === q.question);
+    
+    qTextElem.className = "";
+    if (inReview) {
+        qTextElem.classList.add('status-review'); 
+    } else if (inKnown) {
+        qTextElem.classList.add('status-known'); 
+    }
+
+    document.getElementById('jump-input').value = index + 1;
+
+    renderOptions();
+
+    document.getElementById('prev-btn').style.visibility = index === 0 ? 'hidden' : 'visible';
+    document.getElementById('next-btn').style.visibility = index === currentList.length - 1 ? 'hidden' : 'visible';
+}
+
+function renderOptions() {
+    let q = currentList[currentIndex];
+    if (!q) return;
+    let optionsHtml = '';
+
+    q.options.forEach((opt, i) => {
+        let extraClass = '';
+        
+        if (autoShowAnswer) {
+            if (i === q.answer) extraClass = 'correct-ans';
+        } else if (userRevealed) {
+            if (i === q.answer) {
+                extraClass = 'correct-ans';
+            } else if (i === userSelectedOpt) {
+                extraClass = 'wrong-ans';
+            }
+        }
+
+        optionsHtml += `<button class="option-btn ${extraClass}" onclick="selectOption(${i})">(${i+1}) ${opt}</button>`;
+    });
+
+    document.getElementById('q-options').innerHTML = optionsHtml;
+}
+
+function selectOption(optIndex) {
+    if (userRevealed) return; // 避免重複點擊
+    userRevealed = true;
+    userSelectedOpt = optIndex;
+    renderOptions();
+
+    let q = currentList[currentIndex];
+    if (!q) return;
+
+    if (optIndex === q.answer) {
+        // 答對 -> 自動加入已知道題庫
+        categorizedQuestions["待復習題庫"] = categorizedQuestions["待復習題庫"].filter(item => item.question !== q.question);
+        let alreadyExists = categorizedQuestions["已知道題庫"].some(item => item.question === q.question);
+        if (!alreadyExists) {
+            let clonedQ = JSON.parse(JSON.stringify(q));
+            clonedQ.category = "已知道題庫";
+            categorizedQuestions["已知道題庫"].push(clonedQ);
+            categorizedQuestions["已知道題庫"].sort((a, b) => a.globalIndex - b.globalIndex);
+        }
+        updateTabs();
+        showToast("答對！已加入「已知道題庫」");
+
+        // 停留 1 秒後自動跳到下一題
+        setTimeout(() => {
+            if (currentIndex < currentList.length - 1) {
+                nextQuestion();
+            } else {
+                showQuestion(currentIndex);
+            }
+        }, 1000);
+
+    } else {
+        // 答錯 -> 自動加入待復習題庫
+        categorizedQuestions["已知道題庫"] = categorizedQuestions["已知道題庫"].filter(item => item.question !== q.question);
+        let alreadyExists = categorizedQuestions["待復習題庫"].some(item => item.question === q.question);
+        if (!alreadyExists) {
+            let clonedQ = JSON.parse(JSON.stringify(q));
+            clonedQ.category = "待復習題庫";
+            categorizedQuestions["待復習題庫"].push(clonedQ);
+            categorizedQuestions["待復習題庫"].sort((a, b) => a.globalIndex - b.globalIndex);
+        }
+        updateTabs();
+        showToast("答錯！已加入「待復習題庫」");
+    }
+
+    // 更新題目文字狀態顏色
+    let qTextElem = document.getElementById('q-text');
+    let inReview = categorizedQuestions["待復習題庫"].some(item => item.question === q.question);
+    let inKnown = categorizedQuestions["已知道題庫"].some(item => item.question === q.question);
+    qTextElem.className = "";
+    if (inReview) {
+        qTextElem.classList.add('status-review');
+    } else if (inKnown) {
+        qTextElem.classList.add('status-known');
+    }
+}
+
+function toggleAutoShow() {
+    autoShowAnswer = document.getElementById('auto-show-toggle').checked;
+    userRevealed = false;
+    renderOptions();
+}
+
+function prevQuestion() { if (currentIndex > 0) showQuestion(currentIndex - 1); }
+function nextQuestion() { if (currentIndex < currentList.length - 1) showQuestion(currentIndex + 1); }
+
+function jumpToQuestion() {
+    let val = parseInt(document.getElementById('jump-input').value);
+    if (!isNaN(val) && val >= 1 && val <= currentList.length) {
+        showQuestion(val - 1);
+    } else {
+        alert(`請輸入有效的題號 (1 ~ ${currentList.length})`);
+    }
+}
+
+function handleJumpKey(e) {
+    if (e.key === 'Enter') {
+        jumpToQuestion();
+    }
+}
+
+function markAsReview() {
+    if (currentList.length === 0) return;
+    if (currentCategory === "待復習題庫") {
+        showToast("此題已經在待復習題庫中囉！");
+        return;
+    }
+
+    let q = currentList[currentIndex];
+    
+    categorizedQuestions["已知道題庫"] = categorizedQuestions["已知道題庫"].filter(item => item.question !== q.question);
+
+    let alreadyExists = categorizedQuestions["待復習題庫"].some(item => item.question === q.question);
+    if (alreadyExists) {
+        showToast("此題已在待復習題庫中！");
+        updateTabs();
+        showQuestion(currentIndex);
+        return;
+    }
+
+    let clonedQ = JSON.parse(JSON.stringify(q));
+    clonedQ.category = "待復習題庫";
+    categorizedQuestions["待復習題庫"].push(clonedQ);
+    categorizedQuestions["待復習題庫"].sort((a, b) => a.globalIndex - b.globalIndex);
+
+    updateTabs();
+    showQuestion(currentIndex);
+    showToast("已加入「待復習題庫」（已按原順序排列）！");
+}
+
+function markAsKnown() {
+    if (currentList.length === 0) return;
+    if (currentCategory === "已知道題庫") {
+        showToast("此題已經在已知道題庫中囉！");
+        return;
+    }
+
+    let q = currentList[currentIndex];
+    
+    categorizedQuestions["待復習題庫"] = categorizedQuestions["待復習題庫"].filter(item => item.question !== q.question);
+
+    let alreadyExists = categorizedQuestions["已知道題庫"].some(item => item.question === q.question);
+    if (alreadyExists) {
+        showToast("此題已在已知道題庫中！");
+        updateTabs();
+        showQuestion(currentIndex);
+        return;
+    }
+
+    let clonedQ = JSON.parse(JSON.stringify(q));
+    clonedQ.category = "已知道題庫";
+    categorizedQuestions["已知道題庫"].push(clonedQ);
+    categorizedQuestions["已知道題庫"].sort((a, b) => a.globalIndex - b.globalIndex);
+
+    updateTabs();
+    showQuestion(currentIndex);
+    showToast("已加入「已知道題庫」（已按原順序排列）！");
+}
+
+function updateTestFile() {
+    let fileContent = "";
+    
+    examRules.forEach(rule => {
+        let qList = categorizedQuestions[rule.name] || [];
+        fileContent += `${rule.keyword}\n\n`;
+        
+        qList.forEach((q, idx) => {
+            let ansNum = q.answer + 1;
+            fileContent += `( ${ansNum} )  ${idx + 1}. ${q.question} \n`;
+            q.options.forEach((opt, optIdx) => {
+                fileContent += `(${optIdx + 1})  ${opt} \n`;
+            });
+            fileContent += `\n`;
+        });
+    });
+
+    const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'test.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast("已成功更新並下載新的 test.txt 檔案！");
+}
+
+function openGoogleAI() {
+    let q = currentList[currentIndex];
+    if (!q) return;
+    let queryText = `${currentIndex + 1}. ${q.question} (1) ${q.options[0]} (2) ${q.options[1]} (3) ${q.options[2]} (4) ${q.options[3]}`;
+    let encodedQuery = encodeURIComponent(queryText);
+    window.open(`https://www.google.com/search?q=${encodedQuery}`, '_blank');
+}
+
+document.addEventListener('keydown', function(e) {
+    let studyScreen = document.getElementById('study-screen');
+    if (studyScreen && studyScreen.style.display !== 'none') {
+        if (document.activeElement.id === 'jump-input') return;
+
+        if (e.key === '1' || e.code === 'Numpad1') { selectOption(0); }
+        else if (e.key === '2' || e.code === 'Numpad2') { selectOption(1); }
+        else if (e.key === '3' || e.code === 'Numpad3') { selectOption(2); }
+        else if (e.key === '4' || e.code === 'Numpad4') { selectOption(3); }
+        else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { prevQuestion(); }
+        else if (e.key === 'ArrowRight' || e.key === 'PageDown') { nextQuestion(); }
+        else if (e.code === 'Space') {
+            e.preventDefault();
+            let toggle = document.getElementById('auto-show-toggle');
+            toggle.checked = !toggle.checked;
+            toggleAutoShow();
+        }
+    }
+});
+</script>
+
+</body>
+</html>
