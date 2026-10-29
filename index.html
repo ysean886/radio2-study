@@ -68,6 +68,11 @@
         .file-select-btn { padding: 12px 24px; background: #0275d8; color: white; border-radius: 6px; cursor: pointer; display: inline-block; font-size: 18px; font-weight: bold; }
         .file-select-btn:hover { background: #025aa5; }
         
+        /* 選擇載入方式按鈕排版 */
+        .load-options { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
+        .btn-auto-load { background: #28a745; color: white; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; border: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-auto-load:hover { background: #218838; }
+
         .disclaimer-box { font-size: 12px; color: #777; background: #f8f9fa; padding: 10px; border-radius: 4px; border: 1px dashed #ccc; margin-top: 15px; text-align: justify; }
 
         .footer-copyright { text-align: center; padding: 15px 0 5px 0; margin-top: 20px; font-size: 14px; color: #666; border-top: 1px solid #e9ecef; line-height: 1.6; }
@@ -100,11 +105,26 @@
     <div id="start-screen">
         <h2>二等業餘無線電人員 題庫學習系統</h2>
         <div class="status-box" id="load-status">
-            <p id="status-text" style="font-size: 16px; margin-bottom: 15px;">請點擊下方按鈕選取題庫檔案(*.txt)：</p>
-            <label class="file-select-btn" id="file-label">
-                📁 選擇 題庫檔案(*.txt)
-                <input type="file" id="file-input" accept=".txt" style="display:none;" onchange="handleFileSelect(event)">
-            </label>
+            <p id="status-text" style="font-size: 16px; margin-bottom: 10px;">請選擇題庫載入方式：</p>
+            
+            <div class="load-options">
+                <!-- 自動載入按鈕 -->
+                <button class="btn-auto-load" onclick="loadDefaultTxt()">
+                    ⚡ 自動載入線上題庫
+                </button>
+
+                <!-- 手動載入按鈕 -->
+                <label class="file-select-btn" id="file-label" style="margin: 0; font-size: 16px; padding: 12px 24px;">
+                    📁 手動上傳題庫(*.txt)
+                    <input type="file" id="file-input" accept=".txt" style="display:none;" onchange="handleFileSelect(event)">
+                </label>
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <a href="二等業餘無線電人員資格測試題庫.txt" download style="color: #0275d8; font-size: 14px; text-decoration: none; font-weight: bold;">
+                    📥 點此下載原始題庫 txt 檔案
+                </a>
+            </div>
         </div>
 
         <p>系統特色：</p>
@@ -204,11 +224,32 @@ function showToast(message) {
     }, 1000); // 提示框 1 秒後自動隱藏
 }
 
+// 自動載入線上題庫功能
+function loadDefaultTxt() {
+    const txtFileName = '二等業餘無線電人員資格測試題庫.txt'; // 請確認檔名與 GitHub 上的完全一致
+    
+    fetch(txtFileName)
+        .then(response => {
+            if (!response.ok) throw new Error("無法取得線上題庫檔案");
+            return response.text();
+        })
+        .then(rawText => {
+            parseTextData(rawText);
+            showToast("成功載入線上題庫！");
+        })
+        .catch(error => {
+            alert("自動載入失敗，可能是檔案名稱不符或尚未上傳該 txt 檔，請改用「手動上傳題庫」。");
+        });
+}
+
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = function(e) { parseTextData(e.target.result); };
+    reader.onload = function(e) { 
+        parseTextData(e.target.result); 
+        showToast("成功讀取手動上傳題庫！");
+    };
     reader.readAsText(file, 'utf-8');
 }
 
@@ -262,7 +303,7 @@ function parseTextData(rawText) {
         document.getElementById('study-screen').style.display = 'block';
         initStudySystem();
     } else {
-        alert("讀取檔案失敗，未找到合適的題庫內容，請確認選擇的是 test.txt。");
+        alert("讀取檔案失敗，未找到合適的題庫內容格式。");
     }
 }
 
