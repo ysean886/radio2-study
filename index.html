@@ -220,7 +220,7 @@
             <button class="btn btn-primary" onclick="prevQuestion()" id="prev-btn">← 上一題</button>
             
             <div class="action-buttons-group">
-                <button class="action-btn btn-update" onclick="updateTestFile()">🔄 儲存學習進度</button>
+                <button class="action-btn btn-update" onclick="updateStatusFile()">🔄 儲存學習進度</button>
                 <button class="action-btn btn-review" onclick="markAsReview()">📌 待復習</button>
                 <button class="action-btn btn-known" onclick="markAsKnown()">✔ 已知道</button>
                 <button class="action-btn btn-ai" onclick="openGoogleAI()">✨ Google AI</button>
@@ -626,7 +626,7 @@ function markAsKnown() {
     showToast("已加入「已知道題庫」（已按原順序排列）！");
 }
 
-function updateTestFile() {
+function updateStatusFile() {
     let fileContent = "";
     
     examRules.forEach(rule => {
@@ -647,13 +647,13 @@ function updateTestFile() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'test.txt';
+    a.download = 'Status.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showToast("已成功更新並下載新的 test.txt 檔案！");
+    showToast("已成功更新並下載新的 Status.txt 檔案！");
 }
 
 function openGoogleAI() {
