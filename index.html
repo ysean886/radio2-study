@@ -103,19 +103,19 @@
 
 <div class="container">
     <div id="start-screen">
-        <h2>二等業餘無線電人員 題庫學習系統</h2>
+        <h2>業餘無線電人員 題庫學習系統</h2>
         <div class="status-box" id="load-status">
             <p id="status-text" style="font-size: 16px; margin-bottom: 10px;">請選擇題庫載入方式：</p>
             
             <div class="load-options">
                 <!-- 自動載入按鈕 -->
                 <button class="btn-auto-load" onclick="loadDefaultTxt()">
-                    ⚡ 自動載入線上題庫
+                    ⚡ 自動載入線上二等業餘無線電題庫
                 </button>
 
                 <!-- 手動載入按鈕 -->
                 <label class="file-select-btn" id="file-label" style="margin: 0; font-size: 16px; padding: 12px 24px;">
-                    📁 手動上傳題庫(*.txt)
+                    📁 手動上傳學習進度(*.txt)
                     <input type="file" id="file-input" accept=".txt" style="display:none;" onchange="handleFileSelect(event)">
                 </label>
             </div>
@@ -174,7 +174,7 @@
             <button class="btn btn-primary" onclick="prevQuestion()" id="prev-btn">← 上一題</button>
             
             <div class="action-buttons-group">
-                <button class="action-btn btn-update" onclick="updateTestFile()">🔄 更新題庫(txt)</button>
+                <button class="action-btn btn-update" onclick="updateTestFile()">🔄 儲存學習進度</button>
                 <button class="action-btn btn-review" onclick="markAsReview()">📌 待復習</button>
                 <button class="action-btn btn-known" onclick="markAsKnown()">✔ 已知道</button>
                 <button class="action-btn btn-ai" onclick="openGoogleAI()">✨ Google AI</button>
