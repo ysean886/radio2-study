@@ -44,6 +44,26 @@
         .container { max-width: 850px; background: var(--container-bg); margin: 0 auto; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex: 1; width: 100%; box-sizing: border-box; position: relative; transition: background 0.3s; }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--toolbar-border); padding-bottom: 15px; }
         
+        /* 瀏覽次數統計樣式 */
+        .visit-counter-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--disclaimer-color);
+            background: var(--toolbar-bg);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--toolbar-border);
+        }
+        .visit-count-badge {
+            background: #0275d8;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
         /* 科目分頁標籤 */
         .category-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; border-bottom: 2px solid #0275d8; padding-bottom: 8px; }
         .tab-btn { padding: 8px 12px; border: 1px solid #0275d8; background: var(--tab-bg); color: var(--tab-color); border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
@@ -102,7 +122,7 @@
         .file-select-btn { padding: 12px 24px; background: #0275d8; color: white; border-radius: 6px; cursor: pointer; display: inline-block; font-size: 18px; font-weight: bold; }
         .file-select-btn:hover { background: #025aa5; }
         
-        /* 修改：改為上下垂直排列並置中 */
+        /* 上下垂直排列並置中 */
         .load-options { display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; margin-top: 15px; width: 100%; }
         .btn-auto-load { background: #28a745; color: white; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; max-width: 420px; }
         .btn-auto-load:hover { background: #218838; }
@@ -135,12 +155,19 @@
 
 <div class="container">
     <div id="start-screen">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <h2>業餘無線電人員資格測試題庫 學習系統</h2>
-            <button class="btn" onclick="toggleTheme()" id="theme-toggle-btn" style="background: var(--toolbar-bg); border: 1px solid var(--toolbar-border); color: var(--text-color); padding: 6px 12px; font-size: 14px; font-weight: bold;">
-                🌙 夜間模式
-            </button>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <!-- 瀏覽次數統計 -->
+                <div class="visit-counter-box" title="瀏覽次數統計">
+                    👀 瀏覽次數 <span class="visit-count-badge" id="local-visit-count">1</span> 次
+                </div>
+                <button class="btn" onclick="toggleTheme()" id="theme-toggle-btn" style="background: var(--toolbar-bg); border: 1px solid var(--toolbar-border); color: var(--text-color); padding: 6px 12px; font-size: 14px; font-weight: bold;">
+                    🌙 夜間模式
+                </button>
+            </div>
         </div>
+
         <div class="status-box" id="load-status">
             <p id="status-text" style="font-size: 16px; margin-bottom: 10px;">請選擇題庫載入方式：</p>
             
@@ -234,11 +261,15 @@
         </div>
     </div>
 
-    <!-- BM5DUK / BM7INH 版權宣告列 -->
+    <!-- BM5DUK / BM7INH 版權宣告列與全網累計造訪統計 -->
     <div class="footer-copyright">
         業餘無線電人員題庫學習系統 &copy; <br>
         2026 Original Designed & Developed by <strong>BM5DUK</strong><br>
         2026_Oct revised by <strong>BM7INH</strong>
+        <!-- 線上動態多用戶累計瀏覽計數器（可選，如部署於 GitHub Pages） -->
+        <div style="margin-top: 8px;">
+            <img src="https://count.getloli.com/get/@BM7INH-ham-radio-exam?theme=rule34" alt="全網累計瀏覽次數" style="max-height: 28px; vertical-align: middle;" />
+        </div>
     </div>
 </div>
 
@@ -264,12 +295,26 @@ const examRules = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
+    // 載入夜間模式設定
     const savedTheme = localStorage.getItem("theme") || "light";
     if (savedTheme === "dark") {
         document.documentElement.setAttribute("data-theme", "dark");
         updateThemeButtonText("dark");
     }
+
+    // 瀏覽次數統計機制 (localStorage)
+    updateVisitCounter();
 });
+
+function updateVisitCounter() {
+    let visits = parseInt(localStorage.getItem("site_visit_count") || "0");
+    visits += 1;
+    localStorage.setItem("site_visit_count", visits);
+    const counterElem = document.getElementById("local-visit-count");
+    if (counterElem) {
+        counterElem.innerText = visits;
+    }
+}
 
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute("data-theme");
