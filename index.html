@@ -44,19 +44,6 @@
         .container { max-width: 850px; background: var(--container-bg); margin: 0 auto; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex: 1; width: 100%; box-sizing: border-box; position: relative; transition: background 0.3s; }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--toolbar-border); padding-bottom: 15px; }
         
-        /* 瀏覽次數統計樣式 */
-        .visit-counter-box {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--disclaimer-color);
-            background: var(--toolbar-bg);
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--toolbar-border);
-        }
-
         /* 科目分頁標籤 */
         .category-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; border-bottom: 2px solid #0275d8; padding-bottom: 8px; }
         .tab-btn { padding: 8px 12px; border: 1px solid #0275d8; background: var(--tab-bg); color: var(--tab-color); border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
@@ -115,7 +102,7 @@
         .file-select-btn { padding: 12px 24px; background: #0275d8; color: white; border-radius: 6px; cursor: pointer; display: inline-block; font-size: 18px; font-weight: bold; }
         .file-select-btn:hover { background: #025aa5; }
         
-        /* 上下垂直排列並置中 */
+        /* 修改：改為上下垂直排列並置中 */
         .load-options { display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; margin-top: 15px; width: 100%; }
         .btn-auto-load { background: #28a745; color: white; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; max-width: 420px; }
         .btn-auto-load:hover { background: #218838; }
@@ -148,19 +135,12 @@
 
 <div class="container">
     <div id="start-screen">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2>業餘無線電人員資格測試題庫 學習系統</h2>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <!-- 遠端雲端累計瀏覽次數統計 (Moe Counter) -->
-				<div class="visit-counter-box" title="包含所有訪客的全網累計造訪次數">
-                    👀 總瀏覽人次：<span class="visit-count-badge" id="global-visit-count">載入中...</span>
-                </div>
-                <button class="btn" onclick="toggleTheme()" id="theme-toggle-btn" style="background: var(--toolbar-bg); border: 1px solid var(--toolbar-border); color: var(--text-color); padding: 6px 12px; font-size: 14px; font-weight: bold;">
-                    🌙 夜間模式
-                </button>
-            </div>
+            <button class="btn" onclick="toggleTheme()" id="theme-toggle-btn" style="background: var(--toolbar-bg); border: 1px solid var(--toolbar-border); color: var(--text-color); padding: 6px 12px; font-size: 14px; font-weight: bold;">
+                🌙 夜間模式
+            </button>
         </div>
-
         <div class="status-box" id="load-status">
             <p id="status-text" style="font-size: 16px; margin-bottom: 10px;">請選擇題庫載入方式：</p>
             
@@ -289,40 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.documentElement.setAttribute("data-theme", "dark");
         updateThemeButtonText("dark");
     }
-	fetchGlobalVisitorCount();
 });
-
-function fetchGlobalVisitorCount() {
-    // 改用更穩定的 CountAPI 標準查詢與累加端點
-    fetch('https://api.countapi.xyz/hit/ysean886-radio2-study/visits')
-        .then(response => {
-            if (!response.ok) throw new Error("API 回應錯誤");
-            return response.json();
-        })
-        .then(data => {
-            const counterElem = document.getElementById("global-visit-count");
-            if (counterElem && data && typeof data.value !== 'undefined') {
-                counterElem.innerText = data.value.toLocaleString();
-            } else {
-                counterElem.innerText = "1";
-            }
-        })
-        .catch(error => {
-            console.error("計數器連線失敗，改用備用方案:", error);
-            // 備用方案：如果該網址尚未初始化，直接讀取現有數值
-            fetch('https://api.countapi.xyz/get/ysean886-radio2-study/visits')
-                .then(res => res.json())
-                .then(fallbackData => {
-                    const counterElem = document.getElementById("global-visit-count");
-                    if (counterElem && fallbackData && typeof fallbackData.value !== 'undefined') {
-                        counterElem.innerText = fallbackData.value.toLocaleString();
-                    }
-                })
-                .catch(() => {
-                    document.getElementById("global-visit-count").innerText = "統計中";
-                });
-        });
-}
 
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute("data-theme");
@@ -742,7 +689,6 @@ function updateStatusFile() {
         let qList = categorizedQuestions[rule.name] || [];
         fileContent += `${rule.keyword}\n\n`;
         
-        qList.export = "";
         qList.forEach((q, idx) => {
             let ansNum = q.answer + 1;
             fileContent += `( ${ansNum} )  ${idx + 1}. ${q.question} \n`;
