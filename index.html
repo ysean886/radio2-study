@@ -145,8 +145,12 @@
             <p id="status-text" style="font-size: 16px; margin-bottom: 10px;">請選擇題庫載入方式：</p>
             
             <div class="load-options">
-                <button class="btn-auto-load" onclick="loadDefaultTxt()">
+                <button class="btn-auto-load" onclick="loadDefaultTxt('二等業餘無線電人員資格測試題庫(115年8月版).txt')">
                     ⚡ 自動載入線上二等業餘無線電題庫(115年8月版)
+                </button>
+
+                <button class="btn-auto-load" onclick="loadDefaultTxt('三等業餘無線電人員資格測試題庫(115年8月版).txt')">
+                    ⚡ 自動載入線上三等業餘無線電題庫(115年8月版)
                 </button>
 
                 <label class="file-select-btn" id="file-label" style="margin: 0; font-size: 16px; padding: 12px 24px; width: 100%; max-width: 420px; box-sizing: border-box; text-align: center;">
@@ -159,7 +163,7 @@
 
         <p>系統特色：</p>
         <ul>
-            <li><strong>完整 606 題：</strong> 收錄 6 大科目全部題庫，可依科目分類循序學習。</li>
+            <li><strong>業餘無線電人員資格測試題庫：</strong> 收錄 6 大科目全部題庫，可依科目分類循序學習。</li>
             <li><strong>智慧答題導航：</strong> 答對自動移至「已知道題庫」並停留 1 秒後自動跳下一題；答錯自動移至「待復習題庫」。</li>
             <li><strong>自動排序管理：</strong> 複製到「待復習」或「已知道」題庫時，自動依原題庫順序排列。</li>
             <li><strong>快捷操作：</strong> 支援鍵盤數字鍵 <kbd>1</kbd> ~ <kbd>4</kbd>、左右方向鍵及 <kbd>Space</kbd> 空白鍵。</li>
@@ -298,8 +302,8 @@ function showToast(message) {
     }, 1000);
 }
 
-function loadDefaultTxt() {
-    const txtFileName = '二等業餘無線電人員資格測試題庫(115年8月版).txt';
+function loadDefaultTxt(filename) {
+    const txtFileName = filename || '二等業餘無線電人員資格測試題庫(115年8月版).txt';
     
     fetch(txtFileName)
         .then(response => {
@@ -710,12 +714,9 @@ function updateStatusFile() {
 function openGoogle() {
     let q = currentList[currentIndex];
     if (!q) return;
-//    let queryText = `${currentIndex + 1}. ${q.question} (1) ${q.options[0]} (2) ${q.options[1]} (3) ${q.options[2]} (4) ${q.options[3]}`;
 
-// 取得該題正確答案的選項內容
     let correctAnswerText = q.options[q.answer];
 
-// 組成題目與選項的完整文字
     let queryText = `請幫我解答這題業餘無線電題目並說明解析，包含正確答案的詳細完整核心觀念解析以及考試必背金句：\n${currentIndex + 1}. ${q.question}\n(1) ${q.options[0]}\n(2) ${q.options[1]}\n(3) ${q.options[2]}\n(4) ${q.options[3]}\n正確答案為 ${correctAnswerText}`;
 
     let encodedQuery = encodeURIComponent(queryText);
