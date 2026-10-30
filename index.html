@@ -167,7 +167,7 @@
             <li><strong>結合Google AI：</strong> 使用Google協助得到觀念解析以及必背金句。</li>
 			<li><strong>智慧答題導航：</strong> 答對自動移至「已知道題庫」並停留 1 秒後自動跳下一題；答錯自動移至「待復習題庫」。</li>
             <li><strong>復習功能：</strong> 儲存學習進度，專注不熟題目復習。</li>
-            <li><strong>快捷操作：</strong> 支援鍵盤數字鍵 <kbd>1</kbd> ~ <kbd>4</kbd>、左右方向鍵及 <kbd>Space</kbd> 空白鍵。</li>
+            <li><strong>快捷操作：</strong> 支援鍵盤數字鍵 <kbd>1</kbd> ~ <kbd>4</kbd>、左右方向鍵、<kbd>Space</kbd> 空白鍵以及快速鍵 <kbd>a</kbd> (已知道)、<kbd>q</kbd> (待復習)、<kbd>g</kbd> (Google)。</li>
         </ul>
 
         <div class="disclaimer-box">
@@ -733,6 +733,9 @@ document.addEventListener('keydown', function(e) {
         else if (e.key === '2' || e.code === 'Numpad2') { selectOption(1); }
         else if (e.key === '3' || e.code === 'Numpad3') { selectOption(2); }
         else if (e.key === '4' || e.code === 'Numpad4') { selectOption(3); }
+        else if (e.key === 'a' || e.key === 'A') { markAsKnown(); }
+        else if (e.key === 'q' || e.key === 'Q') { markAsReview(); }
+        else if (e.key === 'g' || e.key === 'G') { openGoogle(); }
         else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { prevQuestion(); }
         else if (e.key === 'ArrowRight' || e.key === 'PageDown') { nextQuestion(); }
         else if (e.code === 'Space') {
